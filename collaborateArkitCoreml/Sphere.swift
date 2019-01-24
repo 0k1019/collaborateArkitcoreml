@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SceneKit
 
 class Sphere: SceneObject{
     init() {
@@ -15,6 +16,21 @@ class Sphere: SceneObject{
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    var animating: Bool = false
+    
+    func animate() {
+        if animating { return }
+        animating = true
+        
+        let rotateOne = SCNAction.rotateBy(x: 0, y: CGFloat(Float.pi * 2), z: 0, duration: 5.0)
+        let repeatFoever = SCNAction.repeatForever(rotateOne)
+    }
+    
+    func stopAnimating(){
+        removeAllActions()
+        animating = false
     }
 
 }

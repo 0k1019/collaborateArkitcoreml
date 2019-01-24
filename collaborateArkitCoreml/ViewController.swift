@@ -9,11 +9,30 @@
 import UIKit
 import SceneKit
 import ARKit
+import Vision
 
 class ViewController: UIViewController, ARSCNViewDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
     var sceneController = MainScene()
+    
+    let currentMLModel = handClassification().model
+    private let serialQueue = DispatchQueue(label: "com.aboveground.dispatchqueueml")
+    private var visionRequests = [VNRequest]()
+    
+    private var timer = Timer()
+    
+    private func setupCoreML() {
+        guard let selectedModel = try? VNCoreMLModel(for: currentMLModel) else {
+            fatalError("Could not load model.")
+        }
+        
+        let classificationRequest = VNCoreMLRequest(model: selectedModel,
+                                                    completionHandler: classificationCompleteHandler)
+        classificationRequest.imageCropAndScaleOption = VNImageCropAndScaleOption.centerCrop // Crop from centre of images and scale to appropriate size.
+        visionRequests = [classificationRequest]
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -39,25 +58,21 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         self.view.addGestureRecognizer(tapRecognizer)
 
     }
-    @objc
-    func didTapScreen(recognizer: UITapGestureRecognizer) {
-        if let camera = sceneView.session.currentFrame?.camera {
-            var translation = matrix_identity_float4x4
-            translation.columns.3.z = -5.0
-            let transform = camera.transform * translation
-            let position = SCNVector3(transform.columns.3.x, transform.columns.3.y, transform.columns.3.z)
-            sceneController.addSphere(parent: sceneView.scene.rootNode, position: position)
-        }
-    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        sceneView.session.delegate = self as? ARSessionDelegate
 
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
+        sceneView.session.delegate = self as? ARSessionDelegate
+
         // Run the view's session
         sceneView.session.run(configuration)
+        
+        setupCoreML()
+        
+        timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.loopCoreMLUpdate), userInfo: nil, repeats: true)
+
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -91,5 +106,78 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     func sessionInterruptionEnded(_ session: ARSession) {
         // Reset tracking and/or remove existing anchors if consistent tracking is required
         
+    }
+    @objc
+    func didTapScreen(recognizer: UITapGestureRecognizer) {
+        if let camera = sceneView.session.currentFrame?.camera {
+            var translation = matrix_identity_float4x4
+            translation.columns.3.z = -5.0
+            let transform = camera.transform * translation
+            let position = SCNVector3(transform.columns.3.x, transform.columns.3.y, transform.columns.3.z)
+            sceneController.addSphere(parent: sceneView.scene.rootNode, position: position)
+        }
+    }
+    
+    @objc
+    private func loopCoreMLUpdate() {
+        serialQueue.async{
+            self.updateCoreML()
+        }
+    }
+}
+extension ViewController {
+    private func updateCoreML() {
+        let pixbuff : CVPixelBuffer? = (sceneView.session.currentFrame?.capturedImage)
+        if pixbuff == nil { return }
+        
+        let deviceOrientation = UIDevice.current.orientation.getImagePropertyOrientation()
+        let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: pixbuff!, orientation: deviceOrientation,options: [:])
+        do {
+            try imageRequestHandler.perform(self.visionRequests)
+        } catch {
+            print(error)
+        }
+    }
+    
+    private func classificationCompleteHandler(request: VNRequest, error: Error?){
+        if error != nil {
+            print("Error: " + (error?.localizedDescription)!)
+            return
+        }
+        guard let observations = request.results else{
+            return
+        }
+        
+        let classifications = observations[0...2]
+            .compactMap({$0 as? VNClassificationObservation})
+            .map({"\($0.identifier) \(String(format:" : %.2f", $0.confidence))"})
+            .joined(separator: "\n")
+        
+        print("Classifications: \(classifications)")
+        
+        DispatchQueue.main.async {
+            let topPrediction =  classifications.components(separatedBy: "\n")[0]
+            let topPredictionName = topPrediction.components(separatedBy: ":")[0].trimmingCharacters(in: .whitespaces)
+            guard let topPredictionScore: Float = Float(topPrediction.components(separatedBy: ":")[1].trimmingCharacters(in: .whitespaces)) else {return}
+            
+            if (topPredictionScore > 0.95) {
+                print("Top prediction: \(topPredictionName) - score: \(String(describing: topPredictionScore))")
+            }
+        
+        }
+    }
+    
+}
+
+extension UIDeviceOrientation {
+    func getImagePropertyOrientation() -> CGImagePropertyOrientation {
+        switch self {
+        case UIDeviceOrientation.portrait, .faceUp: return CGImagePropertyOrientation.right
+        case UIDeviceOrientation.portraitUpsideDown, .faceDown: return CGImagePropertyOrientation.left
+        case UIDeviceOrientation.landscapeLeft: return CGImagePropertyOrientation.up
+        case UIDeviceOrientation.landscapeRight: return CGImagePropertyOrientation.down
+        case UIDeviceOrientation.unknown: return CGImagePropertyOrientation.right
+        
+        }
     }
 }
