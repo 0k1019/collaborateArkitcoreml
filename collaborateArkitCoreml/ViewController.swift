@@ -162,6 +162,20 @@ extension ViewController {
             
             if (topPredictionScore > 0.95) {
                 print("Top prediction: \(topPredictionName) - score: \(String(describing: topPredictionScore))")
+                
+                guard let childNode = self.sceneView.scene.rootNode.childNode(withName: "Sphere", recursively: true), let sphere = childNode as? Sphere else { print("else")
+                    return }
+                
+                if topPredictionName == "hand_fist" {
+                    print("animate")
+                    sphere.animate()
+                }
+                
+                if topPredictionName == "hand_open" || topPrediction == "Negative" {
+                    print("stop animate")
+                    sphere.stopAnimating()
+                }
+                
             }
         
         }

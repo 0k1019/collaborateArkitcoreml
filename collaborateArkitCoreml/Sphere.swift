@@ -26,6 +26,8 @@ class Sphere: SceneObject{
         
         let rotateOne = SCNAction.rotateBy(x: 0, y: CGFloat(Float.pi * 2), z: 0, duration: 5.0)
         let repeatFoever = SCNAction.repeatForever(rotateOne)
+        
+        runAction(repeatFoever)
     }
     
     func stopAnimating(){
