@@ -157,29 +157,42 @@ extension ViewController {
             .joined(separator: "\n")
         
         print("Classifications: \(classifications)")
+        print("===========\(observations[0])")
+        let observationCastings: [VNClassificationObservation] = [observations[0] as! VNClassificationObservation,observations[1] as! VNClassificationObservation,observations[2] as! VNClassificationObservation]
+        let handFistObservation = observationCastings.filter { (observation: VNClassificationObservation) -> Bool in return observation.identifier == "hand_fist"
+        }
+        print("handFizstObservation")
+        print(handFistObservation)
         
         DispatchQueue.main.async {
             let topPrediction =  classifications.components(separatedBy: "\n")[0]
             let topPredictionName = topPrediction.components(separatedBy: ":")[0].trimmingCharacters(in: .whitespaces)
             guard let topPredictionScore: Float = Float(topPrediction.components(separatedBy: ":")[1].trimmingCharacters(in: .whitespaces)) else {return}
             
-            if (topPredictionScore > 0.95) {
-                print("Top prediction: \(topPredictionName) - score: \(String(describing: topPredictionScore))")
-                
-                guard let childNode = self.sceneView.scene.rootNode.childNode(withName: "Sphere", recursively: true), let sphere = childNode as? Sphere else { print("else")
-                    return }
-                
-                if topPredictionName == "hand_fist" {
-                    print("animate")
-                    sphere.animate()
-                }
-                
-                if topPredictionName == "hand_open" || topPrediction == "Negative" {
-                    print("stop animate")
-                    sphere.stopAnimating()
-                }
-                
+            guard let childNode = self.sceneView.scene.rootNode.childNode(withName: "Sphere", recursively: true), let sphere = childNode as? Sphere else { print("else")
+                return }
+            sphere.rotationWithPercentage(maxDuration: 10, percentage:  handFistObservation[0].confidence)
+            if topPredictionName == "hand_open" || topPrediction == "Negative" {
+                print("stop animate")
+                sphere.stopAnimating()
             }
+            
+//            if (topPredictionScore > 0.95) {
+//                print("Top prediction: \(topPredictionName) - score: \(String(describing: topPredictionScore))")
+//
+//                guard let childNode = self.sceneView.scene.rootNode.childNode(withName: "Sphere", recursively: true), let sphere = childNode as? Sphere else { print("else")
+//                    return }
+//
+//                if topPredictionName == "hand_fist" {
+//                    print("animate")
+//                    sphere.animate()
+//                }
+//
+//                if topPredictionName == "hand_open" || topPrediction == "Negative" {
+//                    print("stop animate")
+//                    sphere.stopAnimating()
+//                }
+//            }
         
         }
     }

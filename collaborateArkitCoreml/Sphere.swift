@@ -24,10 +24,15 @@ class Sphere: SceneObject{
         if animating { return }
         animating = true
         
-        let rotateOne = SCNAction.rotateBy(x: 0, y: CGFloat(Float.pi * 2), z: 0, duration: 5.0)
+        let rotateOne = SCNAction.rotateBy(x: 0, y: CGFloat(Float.pi * 2), z: 0, duration: 2.0)
         let repeatFoever = SCNAction.repeatForever(rotateOne)
         
         runAction(repeatFoever)
+    }
+    
+    func rotationWithPercentage(maxDuration: Float, percentage: Float){
+        let rotate = SCNAction.rotateBy(x: 0, y: CGFloat(Float.pi * 2), z: 0, duration: TimeInterval(maxDuration * percentage))
+        runAction(rotate)
     }
     
     func stopAnimating(){
