@@ -127,18 +127,21 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 }
 extension ViewController {
     private func updateCoreML() {
-        let pixbuff : CVPixelBuffer? = (sceneView.session.currentFrame?.capturedImage)
-        if pixbuff == nil { return }
+//        let pixbuff : CVPixelBuffer? = (sceneView.session.currentFrame?.capturedImage)
+        guard let pixbuff: CVPixelBuffer = sceneView.session.currentFrame?.capturedImage else{
+            print("pixbuff error")
+            return
+        }
         
         let deviceOrientation = UIDevice.current.orientation.getImagePropertyOrientation()
-        let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: pixbuff!, orientation: deviceOrientation,options: [:])
+        let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: pixbuff, orientation: deviceOrientation,options: [:])
         do {
             try imageRequestHandler.perform(self.visionRequests)
         } catch {
             print(error)
         }
     }
-    
+
     private func classificationCompleteHandler(request: VNRequest, error: Error?){
         if error != nil {
             print("Error: " + (error?.localizedDescription)!)

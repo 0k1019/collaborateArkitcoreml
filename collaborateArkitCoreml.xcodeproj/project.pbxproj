@@ -23,6 +23,7 @@
 		2A4FD02C21F9BC0A005A1AE8 /* ORB_Body_Diff.png in Resources */ = {isa = PBXBuildFile; fileRef = 2A4FD02821F9BC09005A1AE8 /* ORB_Body_Diff.png */; };
 		2A4FD02D21F9BC0A005A1AE8 /* ORB_Eye_Diff.png in Resources */ = {isa = PBXBuildFile; fileRef = 2A4FD02921F9BC09005A1AE8 /* ORB_Eye_Diff.png */; };
 		2A4FD02E21F9BC0A005A1AE8 /* sphere.dae in Resources */ = {isa = PBXBuildFile; fileRef = 2A4FD02A21F9BC0A005A1AE8 /* sphere.dae */; };
+		2AD02F07221405800044EC44 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 2AD02F06221405800044EC44 /* README.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +45,7 @@
 		2A4FD02821F9BC09005A1AE8 /* ORB_Body_Diff.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ORB_Body_Diff.png; sourceTree = "<group>"; };
 		2A4FD02921F9BC09005A1AE8 /* ORB_Eye_Diff.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ORB_Eye_Diff.png; sourceTree = "<group>"; };
 		2A4FD02A21F9BC0A005A1AE8 /* sphere.dae */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml.dae; path = sphere.dae; sourceTree = "<group>"; };
+		2AD02F06221405800044EC44 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +62,7 @@
 		2A4FCFF621F962B9005A1AE8 = {
 			isa = PBXGroup;
 			children = (
+				2AD02F06221405800044EC44 /* README.md */,
 				2A4FD00121F962B9005A1AE8 /* collaborateArkitCoreml */,
 				2A4FD00021F962B9005A1AE8 /* Products */,
 			);
@@ -185,6 +188,7 @@
 				2A4FD02D21F9BC0A005A1AE8 /* ORB_Eye_Diff.png in Resources */,
 				2A4FD00F21F962BE005A1AE8 /* LaunchScreen.storyboard in Resources */,
 				2A4FD00C21F962BE005A1AE8 /* Assets.xcassets in Resources */,
+				2AD02F07221405800044EC44 /* README.md in Resources */,
 				2A4FD00A21F962B9005A1AE8 /* Main.storyboard in Resources */,
 				2A4FD02B21F9BC0A005A1AE8 /* ORB_Circles_Diff.png in Resources */,
 			);
